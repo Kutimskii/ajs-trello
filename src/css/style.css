@@ -35,11 +35,10 @@ body{
     margin:0px;
 }
 .dragged {
-    cursor:grab;
     border-radius: 10px;
     position: absolute;
     z-index: 999;
-    max-width: 20%;
+    max-width:30%;
     background: #fff;
 }
 .list-wrapper{

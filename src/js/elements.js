@@ -23,19 +23,20 @@ export default class Elements {
     });
 
     let actualElement;
+    let shiftX;
+    let shiftY;
     const onMouseOver = (e) => {
       actualElement.style.top = e.clientY + "px";
       actualElement.style.left = e.clientX + "px";
     };
     const onMouseMove = (event) => {
       actualElement.style.left =
-        event.pageX - actualElement.offsetWidth / 2 + "px";
+        event.pageX - shiftX + "px";
       actualElement.style.top =
-        event.pageY - actualElement.offsetHeight / 2 + "px";
+        event.pageY - shiftY + "px";
     };
     const onMouseUp = (e) => {
       const mouseUpItem = e.target.closest("li");
-
       mouseUpItem.closest("ul").insertBefore(actualElement, mouseUpItem);
       actualElement.classList.remove("dragged");
       actualElement.style.top = "0";
@@ -47,9 +48,15 @@ export default class Elements {
     };
     [...document.querySelectorAll(".item-list-wrap")].forEach((el) => {
       el.addEventListener("mousedown", (e) => {
-        if ((actualElement = e.target.closest("li.filled"))) {
+        actualElement = e.target.closest("li.filled")
+        if (actualElement) {
           e.preventDefault();
-          actualElement = e.target.closest("li");
+          actualElement.ondragstart = function() {
+            return false;
+          };
+          actualElement.style.cursor='grab'
+          shiftX = e.clientX - actualElement.getBoundingClientRect().left;
+          shiftY = e.clientY - actualElement.getBoundingClientRect().top;
           actualElement.classList.add("dragged");
           document.documentElement.addEventListener("mousemove", onMouseMove);
           document.documentElement.addEventListener("mouseup", onMouseUp);
