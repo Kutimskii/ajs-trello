@@ -1,7 +1,6 @@
 export default class Elements {
   constructor() {
     this.listArray = [];
-    this.actualElement;
   }
   init() {
     if (this.loadState()) {
@@ -25,45 +24,61 @@ export default class Elements {
     let actualElement;
     let shiftX;
     let shiftY;
-    const onMouseOver = (e) => {
-      actualElement.style.top = e.clientY + "px";
-      actualElement.style.left = e.clientX + "px";
-    };
+    let proection;
+
+    [...document.querySelectorAll(".item-list-wrap")].forEach((el) => {
+      el.addEventListener("mousedown", (e) => {
+        if (e.target.classList.contains("close")) return
+        actualElement = e.target.closest("li.filled")
+        if (actualElement) {
+          e.preventDefault();
+          document.querySelector('body').style.cursor = 'grabbing';
+          proection = document.createElement('li');
+          proection.style.height = actualElement.offsetHeight +'px';
+          proection.style.width = actualElement.offsetWidth + 'px';
+          proection.style.boxSizing = 'border-box';
+          proection.style.margin = '0'
+          proection.classList.add('proection')
+          actualElement.ondragstart = function() {
+            return false;
+          };
+          shiftX = e.clientX - actualElement.getBoundingClientRect().left;
+          shiftY = e.clientY - actualElement.getBoundingClientRect().top;
+          actualElement.classList.add("dragged");
+          document.addEventListener("mousemove", onMouseMove);
+          document.documentElement.addEventListener("mouseup", onMouseUp);
+
+        }
+      });
+    });
     const onMouseMove = (event) => {
       actualElement.style.left =
         event.pageX - shiftX + "px";
       actualElement.style.top =
         event.pageY - shiftY + "px";
+        proectionAction(event);
     };
+    const proectionAction = (event) => {
+      const target = event.target.closest('li')
+      if(target) {
+      const { y, height } = target.getBoundingClientRect();
+			const appendPosition = y + height / 2 > event.clientY
+				? "beforebegin"
+				: "afterend";
+      target.insertAdjacentElement(appendPosition, proection);
+      }
+  }
     const onMouseUp = (e) => {
-      const mouseUpItem = e.target.closest("li");
-      mouseUpItem.closest("ul").insertBefore(actualElement, mouseUpItem);
+      document.querySelector('body').style.cursor = 'inherit';
+      proection.replaceWith(actualElement)
       actualElement.classList.remove("dragged");
       actualElement.style.top = "0";
       actualElement.style.left = "0";
-      actualElement = undefined;
+      actualElement = null;
+
       document.documentElement.removeEventListener("mouseup", onMouseUp);
-      document.documentElement.removeEventListener("mouseover", onMouseOver);
-      document.documentElement.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mousemove", onMouseMove);
     };
-    [...document.querySelectorAll(".item-list-wrap")].forEach((el) => {
-      el.addEventListener("mousedown", (e) => {
-        actualElement = e.target.closest("li.filled")
-        if (actualElement) {
-          e.preventDefault();
-          actualElement.ondragstart = function() {
-            return false;
-          };
-          actualElement.style.cursor='grab'
-          shiftX = e.clientX - actualElement.getBoundingClientRect().left;
-          shiftY = e.clientY - actualElement.getBoundingClientRect().top;
-          actualElement.classList.add("dragged");
-          document.documentElement.addEventListener("mousemove", onMouseMove);
-          document.documentElement.addEventListener("mouseup", onMouseUp);
-          document.documentElement.addEventListener("mouseover", onMouseOver);
-        }
-      });
-    });
   }
   addElement(parent) {
     const list = document.createElement("li");
