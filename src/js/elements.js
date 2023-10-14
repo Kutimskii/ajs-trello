@@ -28,18 +28,18 @@ export default class Elements {
 
     [...document.querySelectorAll(".item-list-wrap")].forEach((el) => {
       el.addEventListener("mousedown", (e) => {
-        if (e.target.classList.contains("close")) return
-        actualElement = e.target.closest("li.filled")
+        if (e.target.classList.contains("close")) return;
+        actualElement = e.target.closest("li.filled");
         if (actualElement) {
           e.preventDefault();
-          document.querySelector('body').style.cursor = 'grabbing';
-          proection = document.createElement('li');
-          proection.style.height = actualElement.offsetHeight +'px';
-          proection.style.width = actualElement.offsetWidth + 'px';
-          proection.style.boxSizing = 'border-box';
-          proection.style.margin = '0'
-          proection.classList.add('proection')
-          actualElement.ondragstart = function() {
+          document.querySelector("body").style.cursor = "grabbing";
+          proection = document.createElement("li");
+          proection.style.height = actualElement.offsetHeight + "px";
+          proection.style.width = actualElement.offsetWidth + "px";
+          proection.style.boxSizing = "border-box";
+          proection.style.margin = "0";
+          proection.classList.add("proection");
+          actualElement.ondragstart = function () {
             return false;
           };
           shiftX = e.clientX - actualElement.getBoundingClientRect().left;
@@ -47,35 +47,30 @@ export default class Elements {
           actualElement.classList.add("dragged");
           document.addEventListener("mousemove", onMouseMove);
           document.documentElement.addEventListener("mouseup", onMouseUp);
-
         }
       });
     });
     const onMouseMove = (event) => {
-      actualElement.style.left =
-        event.pageX - shiftX + "px";
-      actualElement.style.top =
-        event.pageY - shiftY + "px";
-        proectionAction(event);
+      actualElement.style.left = event.pageX - shiftX + "px";
+      actualElement.style.top = event.pageY - shiftY + "px";
+      proectionAction(event);
     };
     const proectionAction = (event) => {
-      const target = event.target.closest('li')
-      if(target) {
-      const { y, height } = target.getBoundingClientRect();
-			const appendPosition = y + height / 2 > event.clientY
-				? "beforebegin"
-				: "afterend";
-      target.insertAdjacentElement(appendPosition, proection);
+      const target = event.target.closest("li");
+      if (target) {
+        const { y, height } = target.getBoundingClientRect();
+        const appendPosition =
+          y + height / 2 > event.clientY ? "beforebegin" : "afterend";
+        target.insertAdjacentElement(appendPosition, proection);
       }
-  }
-    const onMouseUp = (e) => {
-      document.querySelector('body').style.cursor = 'inherit';
-      proection.replaceWith(actualElement)
+    };
+    const onMouseUp = () => {
+      document.querySelector("body").style.cursor = "inherit";
+      proection.replaceWith(actualElement);
       actualElement.classList.remove("dragged");
       actualElement.style.top = "0";
       actualElement.style.left = "0";
       actualElement = null;
-
       document.documentElement.removeEventListener("mouseup", onMouseUp);
       document.removeEventListener("mousemove", onMouseMove);
     };
