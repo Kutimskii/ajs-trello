@@ -44,6 +44,8 @@ export default class Elements {
           };
           shiftX = e.clientX - actualElement.getBoundingClientRect().left;
           shiftY = e.clientY - actualElement.getBoundingClientRect().top;
+          actualElement.style.left = e.pageX - shiftX + "px";
+          actualElement.style.top = e.pageY - shiftY + "px";
           actualElement.classList.add("dragged");
           document.addEventListener("mousemove", onMouseMove);
           document.documentElement.addEventListener("mouseup", onMouseUp);
@@ -56,12 +58,18 @@ export default class Elements {
       proectionAction(event);
     };
     const proectionAction = (event) => {
-      const target = event.target.closest("li");
+      if (!event.target.closest(".items")) {
+        return;
+      }
+      let target = event.target.closest("li");
       if (target) {
         const { y, height } = target.getBoundingClientRect();
         const appendPosition =
           y + height / 2 > event.clientY ? "beforebegin" : "afterend";
         target.insertAdjacentElement(appendPosition, proection);
+      } else {
+        target = event.target.closest(".items").querySelector("ul");
+        target.insertAdjacentElement("afterbegin", proection);
       }
     };
     const onMouseUp = () => {
